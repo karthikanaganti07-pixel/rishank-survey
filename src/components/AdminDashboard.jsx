@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaChartBar, FaCalendarCheck, FaGlobe, FaMoneyBillWave, FaTrash, FaCheck, FaExclamationTriangle, FaWhatsapp, FaMapMarkerAlt, FaSignOutAlt, FaCompass } from 'react-icons/fa';
+import { defaultWhatsappConfig } from '../config/whatsapp';
 
 export default function AdminDashboard({ user, onLogout }) {
   const [bookings, setBookings] = useState([]);
@@ -23,23 +24,25 @@ export default function AdminDashboard({ user, onLogout }) {
     revenue: 0
   });
 
-  const [waConfig, setWaConfig] = useState({
-    provider: 'mock',
-    greenApi: {
-      idInstance: '',
-      apiTokenInstance: ''
-    }
-  });
+  const [waConfig, setWaConfig] = useState(defaultWhatsappConfig);
 
   // Load waConfig on mount
   useEffect(() => {
     const saved = localStorage.getItem('rishank_whatsapp_config');
     if (saved) {
       try {
-        setWaConfig(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        if (!parsed.greenApi || !parsed.greenApi.idInstance || parsed.greenApi.idInstance === '') {
+          setWaConfig(defaultWhatsappConfig);
+        } else {
+          setWaConfig(parsed);
+        }
       } catch (e) {
         console.error("Failed to load WA config", e);
+        setWaConfig(defaultWhatsappConfig);
       }
+    } else {
+      setWaConfig(defaultWhatsappConfig);
     }
   }, []);
 
